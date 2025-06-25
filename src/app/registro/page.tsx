@@ -4,33 +4,36 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 const especializacionesPorClase: Record<string, string[]> = {
-  cazador: ['Puntería', 'Supervivencia', 'Bestias'],
-  sacerdote: ['Sagrado', 'Disciplina', 'Sombras'],
-  paladín: ['Sagrado', 'Represión', 'Protección'],
-  guerrero: ['Furia', 'Armas', 'Protección'],
-  druida: ['Equilibrio', 'Feral', 'Restauración', 'Guardian'],
-  pícaro: ['Combate', 'Sutileza', 'Asesinato'],
-  mago: ['Fuego', 'Escarcha', 'Arcano'],
+  cazador: ['Bestias', 'Puntería', 'Supervivencia'],
+  sacerdote: ['Disciplina', 'Sagrado', 'Sombras'],
+  paladín: ['Protección', 'Represión', 'Sagrado'],
+  guerrero: ['Armas', 'Furia', 'Protección'],
+  druida: ['Equilibrio', 'Feral', 'Guardian', 'Restauración'],
+  pícaro: ['Asesinato', 'Combate', 'Sutileza'],
+  mago: ['Arcano', 'Escarcha', 'Fuego'],
   brujo: ['Aflicción', 'Demonología', 'Destrucción'],
   chamán: ['Elemental', 'Mejora', 'Restauración'],
+  monje: ['Maestro Cervecero', 'Tejedor de Niebla', 'Viajero del Viento']
 };
 
 const determinarRol = (clase: string, espec: string): string => {
-  const healSpecs = {
+  const healSpecs: Record<string, string[]> = {
     sacerdote: ['Sagrado', 'Disciplina'],
     paladín: ['Sagrado'],
     druida: ['Restauración'],
     chamán: ['Restauración'],
+    monje: ['Tejedor de Niebla'],
   };
 
-  const tankSpecs = {
+  const tankSpecs: Record<string, string[]> = {
     paladín: ['Protección'],
     guerrero: ['Protección'],
     druida: ['Guardian'],
+    monje: ['Maestro Cervecero'],
   };
 
-  if ((healSpecs as any)[clase]?.includes(espec)) return 'Healer';
-  if ((tankSpecs as any)[clase]?.includes(espec)) return 'Tank';
+  if (healSpecs[clase]?.includes(espec)) return 'Healer';
+  if (tankSpecs[clase]?.includes(espec)) return 'Tank';
   return 'DPS';
 };
 
