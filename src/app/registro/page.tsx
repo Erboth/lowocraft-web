@@ -29,8 +29,8 @@ const determinarRol = (clase: string, espec: string): string => {
     druida: ['Guardian'],
   };
 
-  if (healSpecs[clase]?.includes(espec)) return 'Healer';
-  if (tankSpecs[clase]?.includes(espec)) return 'Tank';
+  if ((healSpecs as any)[clase]?.includes(espec)) return 'Healer';
+  if ((tankSpecs as any)[clase]?.includes(espec)) return 'Tank';
   return 'DPS';
 };
 
