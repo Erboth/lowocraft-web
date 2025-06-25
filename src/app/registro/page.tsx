@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+/* --------------------- Datos base --------------------- */
+
 const especializacionesPorClase: Record<string, string[]> = {
   cazador: ['Bestias', 'Puntería', 'Supervivencia'],
   sacerdote: ['Disciplina', 'Sagrado', 'Sombras'],
@@ -13,8 +15,10 @@ const especializacionesPorClase: Record<string, string[]> = {
   mago: ['Arcano', 'Escarcha', 'Fuego'],
   brujo: ['Aflicción', 'Demonología', 'Destrucción'],
   chamán: ['Elemental', 'Mejora', 'Restauración'],
-  monje: ['Maestro Cervecero', 'Tejedor de Niebla', 'Viajero del Viento']
+  monje: ['Maestro Cervecero', 'Tejedor de Niebla', 'Viajero del Viento'],
 };
+
+/* --------------------- Lógica de rol --------------------- */
 
 const determinarRol = (clase: string, espec: string): string => {
   const healSpecs: Record<string, string[]> = {
@@ -37,6 +41,8 @@ const determinarRol = (clase: string, espec: string): string => {
   return 'DPS';
 };
 
+/* --------------------- Componente --------------------- */
+
 export default function RegistroPage() {
   const [form, setForm] = useState({
     nombre: '',
@@ -46,9 +52,20 @@ export default function RegistroPage() {
     aceptaNormas: false,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
-    const updatedForm = { ...form, [name]: type === 'checkbox' ? checked : value };
+  /* ---------- Manejador de cambios tipado de forma segura ---------- */
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const target = e.target as HTMLInputElement | HTMLSelectElement;
+    const { name, value, type } = target;
+
+    const updatedForm = {
+      ...form,
+      [name]:
+        type === 'checkbox'
+          ? (target as HTMLInputElement).checked
+          : value,
+    };
 
     if (name === 'clase') {
       updatedForm.especializacion = '';
@@ -56,13 +73,13 @@ export default function RegistroPage() {
     }
 
     if (name === 'especializacion') {
-      const nuevoRol = determinarRol(form.clase, value);
-      updatedForm.rol = nuevoRol;
+      updatedForm.rol = determinarRol(form.clase, value);
     }
 
     setForm(updatedForm);
   };
 
+  /* --------------------- Envío del formulario --------------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -96,13 +113,21 @@ export default function RegistroPage() {
     }
   };
 
+  /* --------------------- JSX --------------------- */
+
   return (
     <main className="min-h-screen bg-black text-white p-6">
       <div className="max-w-xl mx-auto bg-[#f7f0d3cc] text-gray-900 shadow-lg rounded-lg p-8 border border-[#c2b280]">
-        <h1 className="text-3xl font-bold mb-6 text-center">📝 Registro de Personaje</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          📝 Registro de Personaje
+        </h1>
+
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Nombre */}
           <div>
-            <label htmlFor="nombre" className="block font-semibold mb-1">Nombre del personaje</label>
+            <label htmlFor="nombre" className="block font-semibold mb-1">
+              Nombre del personaje
+            </label>
             <input
               type="text"
               name="nombre"
@@ -114,8 +139,11 @@ export default function RegistroPage() {
             />
           </div>
 
+          {/* Clase */}
           <div>
-            <label htmlFor="clase" className="block font-semibold mb-1">Clase</label>
+            <label htmlFor="clase" className="block font-semibold mb-1">
+              Clase
+            </label>
             <select
               name="clase"
               id="clase"
@@ -126,14 +154,22 @@ export default function RegistroPage() {
             >
               <option value="">-- Selecciona una clase --</option>
               {Object.keys(especializacionesPorClase).map((cl) => (
-                <option key={cl} value={cl}>{cl.charAt(0).toUpperCase() + cl.slice(1)}</option>
+                <option key={cl} value={cl}>
+                  {cl.charAt(0).toUpperCase() + cl.slice(1)}
+                </option>
               ))}
             </select>
           </div>
 
+          {/* Especialización */}
           {form.clase && (
             <div>
-              <label htmlFor="especializacion" className="block font-semibold mb-1">Especialización</label>
+              <label
+                htmlFor="especializacion"
+                className="block font-semibold mb-1"
+              >
+                Especialización
+              </label>
               <select
                 name="especializacion"
                 id="especializacion"
@@ -144,12 +180,15 @@ export default function RegistroPage() {
               >
                 <option value="">-- Selecciona una especialización --</option>
                 {especializacionesPorClase[form.clase].map((espec) => (
-                  <option key={espec} value={espec}>{espec}</option>
+                  <option key={espec} value={espec}>
+                    {espec}
+                  </option>
                 ))}
               </select>
             </div>
           )}
 
+          {/* Rol asignado */}
           {form.rol && (
             <div>
               <label className="block font-semibold mb-1">Rol asignado</label>
@@ -162,6 +201,7 @@ export default function RegistroPage() {
             </div>
           )}
 
+          {/* Aceptar normas */}
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -172,10 +212,15 @@ export default function RegistroPage() {
               className="mr-2"
             />
             <label htmlFor="aceptaNormas" className="text-sm">
-              He leído y acepto las <Link href="/normas" className="text-blue-600 hover:underline">normas de la guild</Link>.
+              He leído y acepto las{' '}
+              <Link href="/normas" className="text-blue-600 hover:underline">
+                normas de la guild
+              </Link>
+              .
             </label>
           </div>
 
+          {/* Botón */}
           <button
             type="submit"
             className="w-full bg-[#5a3e1b] text-white font-semibold py-2 px-4 rounded hover:bg-[#3f2d15] transition"
@@ -185,7 +230,12 @@ export default function RegistroPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-[#5a3e1b] hover:underline">← Volver a la portada</Link>
+          <Link
+            href="/"
+            className="text-[#5a3e1b] hover:underline"
+          >
+            ← Volver a la portada
+          </Link>
         </div>
       </div>
     </main>
