@@ -8,11 +8,11 @@ datasource db {
 }
 
 model Personaje {
-  id                Int      @id @default(autoincrement())
-  nombre            String
-  clase             String
-  especializacion   String
-  rol               String
-  etiqueta          String?  // null por defecto
-  fechaRegistro     DateTime @default(now())
+  id               Int      @id @default(autoincrement()) // ID único
+  nombre           String                                 // Nombre del personaje
+  clase            String                                 // Clase del personaje (e.g., paladín)
+  especializacion  String                                 // Especialización elegida
+  rol              String                                 // Rol calculado automáticamente
+  etiqueta         String?                                // Etiqueta opcional: Roster25, Roster10, Alter
+  fechaRegistro    DateTime @default(now())               // Fecha de creación automática
 }

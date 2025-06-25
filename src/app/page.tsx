@@ -1,3 +1,6 @@
+'use client';
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-6 bg-black text-white">
@@ -9,10 +12,11 @@ export default function Home() {
       </p>
 
       <nav className="flex flex-col gap-4 text-lg text-blue-400">
-        <a href="/normas" className="hover:underline">📜 Normas</a>
-        <a href="/registro" className="hover:underline">📝 Registro</a>
-        <a href="/banco" className="hover:underline">💰 Banco de Guild</a>
-        <a href="/applys" className="hover:underline">📩 Applys</a>
+        <Link href="/normas" className="hover:underline">📜 Normas</Link>
+        <Link href="/registro" className="hover:underline">📝 Registro</Link>
+        <Link href="/personajes" className="hover:underline">👥 Personajes</Link>
+        <Link href="/banco" className="hover:underline">💰 Banco de Guild</Link>
+        <Link href="/applys" className="hover:underline">📩 Applys</Link>
       </nav>
     </main>
   );
