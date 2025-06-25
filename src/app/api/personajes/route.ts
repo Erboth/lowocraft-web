@@ -4,23 +4,40 @@ const prisma = new PrismaClient();
 
 /* --------------------- POST: Crear personaje --------------------- */
 export async function POST(request: Request) {
-  const body = await request.json();
-
   try {
+    const body = await request.json();
+
+    // Validación básica de campos requeridos
+    const { nombre, clase, especializacion, rol } = body;
+
+    if (!nombre || !clase || !especializacion || !rol) {
+      return new Response(JSON.stringify({ error: 'Faltan datos obligatorios' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const nuevo = await prisma.personaje.create({
       data: {
-        nombre: body.nombre,
-        clase: body.clase,
-        especializacion: body.especializacion,
-        rol: body.rol,
-        etiqueta: null // etiqueta inicial vacía
+        nombre,
+        clase,
+        especializacion,
+        rol,
+        etiqueta: null // opcional por defecto
       },
     });
 
-    return Response.json(nuevo, { status: 201 });
+    return new Response(JSON.stringify(nuevo), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
   } catch (error) {
     console.error('Error al guardar personaje:', error);
-    return Response.json({ error: 'Error al guardar personaje' }, { status: 500 });
+    return new Response(JSON.stringify({ error: 'Error al guardar personaje' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 
@@ -30,9 +47,17 @@ export async function GET() {
     const personajes = await prisma.personaje.findMany({
       orderBy: { nombre: 'asc' }
     });
-    return Response.json(personajes);
+
+    return new Response(JSON.stringify(personajes), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
   } catch (error) {
     console.error('Error al obtener personajes:', error);
-    return new Response('Error interno del servidor', { status: 500 });
+    return new Response(JSON.stringify({ error: 'Error al obtener personajes' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
