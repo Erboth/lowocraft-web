@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+/* ---------- Tipado ---------- */
 type Personaje = {
   id: number;
   nombre: string;
@@ -16,7 +17,7 @@ export default function PersonajesPage() {
   const [personajes, setPersonajes] = useState<Personaje[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar personajes al montar el componente
+  /* ---------- Cargar al montar ---------- */
   useEffect(() => {
     fetch('/api/personajes')
       .then((res) => {
@@ -31,40 +32,52 @@ export default function PersonajesPage() {
   }, []);
 
   return (
-    <main className="p-6">
-      {/* Botón de volver */}
-      <div className="mb-4">
-        <Link href="/" className="text-blue-500 hover:underline">
-          ← Volver a la portada
-        </Link>
+    <main className="min-h-screen bg-black text-white p-6">
+      {/* Contenedor tipo pergamino */}
+      <div className="max-w-5xl mx-auto bg-[#f7f0d3cc] text-gray-900 shadow-lg rounded-lg p-8 border border-[#c2b280]">
+        {/* Volver */}
+        <div className="mb-6">
+          <Link href="/" className="text-[#5a3e1b] hover:underline">
+            ← Volver a la portada
+          </Link>
+        </div>
+
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          📜 Personajes registrados
+        </h1>
+
+        {error && <p className="text-red-600 mb-4">{error}</p>}
+
+        {personajes.length === 0 && !error ? (
+          <p className="text-center">No hay personajes registrados aún.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border border-gray-400">
+              <thead className="bg-[#5a3e1b] text-white">
+                <tr>
+                  <th className="p-2 border">Nombre</th>
+                  <th className="p-2 border">Clase</th>
+                  <th className="p-2 border">Especialización</th>
+                  <th className="p-2 border">Rol</th>
+                  <th className="p-2 border">Etiqueta</th>
+                  {/* Acciones futuras */}
+                </tr>
+              </thead>
+              <tbody>
+                {personajes.map((p) => (
+                  <tr key={p.id} className="odd:bg-[#f7f0d3] even:bg-[#e9e1c6]">
+                    <td className="p-2 border">{p.nombre}</td>
+                    <td className="p-2 border">{p.clase}</td>
+                    <td className="p-2 border">{p.especializacion}</td>
+                    <td className="p-2 border">{p.rol}</td>
+                    <td className="p-2 border">{p.etiqueta ?? '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-
-      <h1 className="text-2xl font-bold mb-4">
-        Lista de personajes registrados
-      </h1>
-
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-
-      {personajes.length === 0 && !error ? (
-        <p>No hay personajes registrados aún.</p>
-      ) : (
-        <ul className="space-y-2">
-          {personajes.map((p) => (
-            <li
-              key={p.id}
-              className="border p-4 rounded bg-gray-100 text-black"
-            >
-              <strong>{p.nombre}</strong> — {p.clase} ({p.rol})
-              {p.especializacion && ` – ${p.especializacion}`}
-              {p.etiqueta && (
-                <span className="ml-2 text-sm text-gray-600 italic">
-                  [{p.etiqueta}]
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
     </main>
   );
 }
