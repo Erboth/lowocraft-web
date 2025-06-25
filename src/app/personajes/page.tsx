@@ -1,152 +1,58 @@
-'use client';
+// app/personajes/page.tsx
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
-import { useEffect, useState } from 'react';
+export const dynamic = "force-dynamic";
 
-type Personaje = {
-  id: number;
-  nombre: string;
-  clase: string;
-  especializacion: string;
-  rol: string;
-  etiqueta: string | null;
-};
+export default async function PersonajesPage() {
+  let personajes = [];
 
-const especializacionesPorClase: Record<string, string[]> = {
-  cazador: ['Bestias', 'Puntería', 'Supervivencia'],
-  sacerdote: ['Disciplina', 'Sagrado', 'Sombras'],
-  paladín: ['Protección', 'Represión', 'Sagrado'],
-  guerrero: ['Armas', 'Furia', 'Protección'],
-  druida: ['Equilibrio', 'Feral', 'Guardian', 'Restauración'],
-  pícaro: ['Asesinato', 'Combate', 'Sutileza'],
-  mago: ['Arcano', 'Escarcha', 'Fuego'],
-  brujo: ['Aflicción', 'Demonología', 'Destrucción'],
-  chamán: ['Elemental', 'Mejora', 'Restauración'],
-  monje: ['Maestro Cervecero', 'Tejedor de Niebla', 'Viajero del Viento'],
-};
-
-const determinarRol = (clase: string, espec: string): string => {
-  const healSpecs: Record<string, string[]> = {
-    sacerdote: ['Sagrado', 'Disciplina'],
-    paladín: ['Sagrado'],
-    druida: ['Restauración'],
-    chamán: ['Restauración'],
-    monje: ['Tejedor de Niebla'],
-  };
-
-  const tankSpecs: Record<string, string[]> = {
-    paladín: ['Protección'],
-    guerrero: ['Protección'],
-    druida: ['Guardian'],
-    monje: ['Maestro Cervecero'],
-  };
-
-  if (healSpecs[clase]?.includes(espec)) return 'Healer';
-  if (tankSpecs[clase]?.includes(espec)) return 'Tank';
-  return 'DPS';
-};
-
-export default function PersonajesPage() {
-  const [personajes, setPersonajes] = useState<Personaje[]>([]);
-
-  const cargarPersonajes = async () => {
-    const res = await fetch('/api/personajes');
-    const data = await res.json();
-    setPersonajes(data);
-  };
-
-  useEffect(() => {
-    cargarPersonajes();
-  }, []);
-
-  const actualizarPersonaje = async (id: number, updates: Partial<Personaje>) => {
-    await fetch(`/api/personajes/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates),
+  try {
+    personajes = await prisma.personaje.findMany({
+      orderBy: { nombre: "asc" },
     });
-    cargarPersonajes();
-  };
-
-  const eliminarPersonaje = async (id: number) => {
-    if (confirm('¿Seguro que quieres borrar este personaje?')) {
-      await fetch(`/api/personajes/${id}`, { method: 'DELETE' });
-      cargarPersonajes();
-    }
-  };
+  } catch (error) {
+    console.error("Error al obtener personajes:", error);
+    return (
+      <main className="p-6">
+        <div className="mb-4">
+          <Link href="/" className="text-blue-500 hover:underline">
+            ← Volver a la portada
+          </Link>
+        </div>
+        <p className="text-red-500">Error al obtener personajes.</p>
+      </main>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold mb-6 text-center">📜 Personajes Registrados</h1>
-
-        <table className="w-full table-auto border-collapse bg-white text-black rounded shadow-md overflow-hidden text-sm">
-          <thead className="bg-[#5a3e1b] text-white">
-            <tr>
-              <th className="p-2">Nombre</th>
-              <th className="p-2">Clase</th>
-              <th className="p-2">Especialización</th>
-              <th className="p-2">Rol</th>
-              <th className="p-2">Etiqueta</th>
-              <th className="p-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {personajes.map((pj) => (
-              <tr key={pj.id} className="text-center border-t border-gray-300">
-                <td className="p-2">{pj.nombre}</td>
-                <td className="p-2">{pj.clase}</td>
-
-                <td className="p-2">
-                  <select
-                    value={pj.especializacion}
-                    onChange={(e) => {
-                      const nuevaEspec = e.target.value;
-                      const nuevoRol = determinarRol(pj.clase, nuevaEspec);
-                      actualizarPersonaje(pj.id, {
-                        especializacion: nuevaEspec,
-                        rol: nuevoRol,
-                      });
-                    }}
-                    className="p-1 border rounded"
-                  >
-                    {especializacionesPorClase[pj.clase]?.map((espec) => (
-                      <option key={espec} value={espec}>
-                        {espec}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-
-                <td className="p-2">{pj.rol}</td>
-
-                <td className="p-2">
-                  <select
-                    value={pj.etiqueta ?? ''}
-                    onChange={(e) =>
-                      actualizarPersonaje(pj.id, { etiqueta: e.target.value || null })
-                    }
-                    className="p-1 border rounded"
-                  >
-                    <option value="">-</option>
-                    <option value="Roster25">Roster25</option>
-                    <option value="Roster10">Roster10</option>
-                    <option value="Alter">Alter</option>
-                  </select>
-                </td>
-
-                <td className="p-2">
-                  <button
-                    onClick={() => eliminarPersonaje(pj.id)}
-                    className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-800"
-                  >
-                    Borrar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <main className="p-6">
+      {/* Botón de volver */}
+      <div className="mb-4">
+        <Link href="/" className="text-blue-500 hover:underline">
+          ← Volver a la portada
+        </Link>
       </div>
+
+      <h1 className="text-2xl font-bold mb-4">Lista de personajes registrados</h1>
+
+      {personajes.length === 0 ? (
+        <p>No hay personajes registrados aún.</p>
+      ) : (
+        <ul className="space-y-2">
+          {personajes.map((p) => (
+            <li key={p.id} className="border p-4 rounded bg-gray-100">
+              <strong>{p.nombre}</strong> — {p.clase} ({p.rol})
+              {p.especializacion && ` – ${p.especializacion}`}
+              {p.etiqueta && (
+                <span className="ml-2 text-sm text-gray-600 italic">
+                  [{p.etiqueta}]
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </main>
   );
 }
