@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 type AccordionItem = {
   id: string;
@@ -78,9 +79,9 @@ export default function NormasPage() {
         ))}
 
         <div className="mt-8 text-center">
-          <a href="/" className="text-[#5a3e1b] hover:underline text-lg">
+          <Link href="/" className="text-[#5a3e1b] hover:underline text-lg">
             ← Volver a la portada
-          </a>
+          </Link>
         </div>
       </div>
     </main>

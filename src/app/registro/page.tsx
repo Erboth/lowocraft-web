@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 const especializacionesPorClase: Record<string, string[]> = {
   cazador: ['Puntería', 'Supervivencia', 'Bestias'],
@@ -44,7 +45,7 @@ export default function RegistroPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target;
-    let updatedForm = { ...form, [name]: type === 'checkbox' ? checked : value };
+    const updatedForm = { ...form, [name]: type === 'checkbox' ? checked : value };
 
     if (name === 'clase') {
       updatedForm.especializacion = '';
@@ -59,14 +60,37 @@ export default function RegistroPage() {
     setForm(updatedForm);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!form.aceptaNormas) {
       alert('Debes aceptar las normas para registrarte.');
       return;
     }
-    console.log('Datos enviados:', form);
-    alert(`¡Registro enviado!\nNombre: ${form.nombre}\nClase: ${form.clase}\nEspecialización: ${form.especializacion}\nRol: ${form.rol}`);
+
+    try {
+      const res = await fetch('/api/personajes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+
+      if (res.ok) {
+        alert('¡Registro guardado correctamente!');
+        setForm({
+          nombre: '',
+          clase: '',
+          especializacion: '',
+          rol: '',
+          aceptaNormas: false,
+        });
+      } else {
+        alert('Error al registrar personaje.');
+      }
+    } catch (error) {
+      console.error('Error al enviar:', error);
+      alert('Error al conectar con el servidor.');
+    }
   };
 
   return (
@@ -145,7 +169,7 @@ export default function RegistroPage() {
               className="mr-2"
             />
             <label htmlFor="aceptaNormas" className="text-sm">
-              He leído y acepto las <a href="/normas" className="text-blue-600 hover:underline">normas de la guild</a>.
+              He leído y acepto las <Link href="/normas" className="text-blue-600 hover:underline">normas de la guild</Link>.
             </label>
           </div>
 
@@ -158,7 +182,7 @@ export default function RegistroPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <a href="/" className="text-[#5a3e1b] hover:underline">← Volver a la portada</a>
+          <Link href="/" className="text-[#5a3e1b] hover:underline">← Volver a la portada</Link>
         </div>
       </div>
     </main>
