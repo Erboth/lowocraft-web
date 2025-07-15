@@ -68,6 +68,66 @@ export default function AdminApplysPage() {
             <p><strong>{a.nombrePJ}</strong> - {a.clase} / {a.especializacion}</p>
             <p><strong>Discord:</strong> {a.discordUsername}</p>
             <p><strong>Enviado:</strong> {new Date(a.createdAt).toLocaleString()}</p>
+            {/* Thumbnail con click para modal */}
+            <img
+              src={a.uiImageUrl}
+              alt={`Interfaz de ${a.nombrePJ}`}
+              className="my-2 max-w-xs rounded border cursor-pointer"
+              onClick={() => setModalUrl(a.uiImageUrl)}
+            />
+            <p>
+              <a
+                href={a.logsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Ver Warcraft Logs
+              </a>
+            </p>
+            <div className="mt-2 space-x-2">
+              <button
+                onClick={() => updateStatus(a.id, 'APPROVED')}
+                className="px-3 py-1 bg-green-600 rounded"
+              >
+                Aprobar
+              </button>
+              <button
+                onClick={() => updateStatus(a.id, 'REJECTED')}
+                className="px-3 py-1 bg-red-600 rounded"
+              >
+                Rechazar
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {/* Modal de imagen */}
+        {modalUrl && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onClick={() => setModalUrl('')}> 
+            <div className="relative" onClick={e => e.stopPropagation()}>
+              <button
+                onClick={() => setModalUrl('')}
+                className="absolute top-2 right-2 text-white text-2xl"
+              >×</button>
+              <img
+                src={modalUrl}
+                alt="Vista ampliada interfaz"
+                className="max-h-full max-w-full rounded"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+    <main className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-3xl mx-auto space-y-4">
+        <h1 className="text-3xl font-bold mb-4">Solicitudes Pendientes</h1>
+        {applies.map(a => (
+          <div key={a.id} className="bg-gray-900 p-4 rounded">
+            <p><strong>{a.nombrePJ}</strong> - {a.clase} / {a.especializacion}</p>
+            <p><strong>Discord:</strong> {a.discordUsername}</p>
+            <p><strong>Enviado:</strong> {new Date(a.createdAt).toLocaleString()}</p>
             <img
               src={a.uiImageUrl}
               alt={`Interfaz de ${a.nombrePJ}`}
