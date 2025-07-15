@@ -17,22 +17,39 @@ type Apply = {
 export default function AdminApplysPage() {
   const [applies, setApplies] = useState<Apply[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalUrl, setModalUrl] = useState('');
+
+  const fetchPending = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/applications?status=PENDING');
+      const data = await res.json();
+      setApplies(data);
+    } catch (err) {
+      console.error('Error al cargar solicitudes:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetch('/api/applications?status=PENDING')
-      .then(res => res.json())
-      .then(data => setApplies(data))
-      .finally(() => setLoading(false));
+    fetchPending();
   }, []);
 
   const updateStatus = async (id: number, status: 'APPROVED' | 'REJECTED') => {
-    await fetch(`/api/applications/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    });
-    setApplies(curr => curr.filter(a => a.id !== id));
+    try {
+      await fetch(`/api/applications/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      fetchPending();
+    } catch (err) {
+      console.error('Error al actualizar estado:', err);
+    }
   };
+
+  const closeModal = () => setModalUrl('');
 
   if (loading) return <p className="p-6">Cargando solicitudes…</p>;
   if (applies.length === 0) return <p className="p-6">No hay solicitudes pendientes.</p>;
@@ -49,7 +66,8 @@ export default function AdminApplysPage() {
             <img
               src={a.uiImageUrl}
               alt={`Interfaz de ${a.nombrePJ}`}
-              className="my-2 max-w-xs border"
+              className="my-2 max-w-xs cursor-pointer border"
+              onClick={() => setModalUrl(a.uiImageUrl)}
             />
             <p>
               <a
@@ -77,6 +95,22 @@ export default function AdminApplysPage() {
             </div>
           </div>
         ))}
+
+        {modalUrl && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+            <div className="relative">
+              <button
+                onClick={closeModal}
+                className="absolute top-2 right-2 text-white text-2xl"
+              >×</button>
+              <img
+                src={modalUrl}
+                alt="Vista ampliada interfaz"
+                className="max-h-full max-w-full"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
