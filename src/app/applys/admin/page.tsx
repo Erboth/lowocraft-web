@@ -86,9 +86,9 @@ export default function AdminApplysPage() {
                 href={a.uiImageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline break-all"
+                className="underline text-blue-400 hover:text-blue-300"
               >
-                {a.uiImageUrl}
+                Ver imagen
               </a>
             </p>
 
