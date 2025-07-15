@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 // Definición de clases y especializaciones de WoW (Pandaria) en castellano
 const CLASES = [
