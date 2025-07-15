@@ -4,26 +4,33 @@ import { NextResponse } from 'next/server';
 import { ApplyStatus } from '@prisma/client';
 
 export async function PATCH(request: Request) {
-  // Extraer ID del path
+  // Extraer ID de la URL
   const { pathname } = new URL(request.url);
-  const segments = pathname.split('/');
-  const id = Number(segments[segments.length - 1]);
+  const id = Number(pathname.split('/').pop());
   if (isNaN(id)) {
-    return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'ID inválido' },
+      { status: 400 }
+    );
   }
 
-  // Leer nuevo estado desde el body
-  let body: any;
+  // Leer y validar body
+  let body: { status: ApplyStatus };
   try {
-    body = await request.json();
+    body = (await request.json()) as { status: ApplyStatus };
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'JSON inválido' },
+      { status: 400 }
+    );
   }
 
   const { status } = body;
-  const validStatuses = Object.values(ApplyStatus);
-  if (!validStatuses.includes(status)) {
-    return NextResponse.json({ error: `Estado inválido: ${status}` }, { status: 400 });
+  if (!Object.values(ApplyStatus).includes(status)) {
+    return NextResponse.json(
+      { error: `Estado inválido: ${status}` },
+      { status: 400 }
+    );
   }
 
   try {
@@ -34,6 +41,9 @@ export async function PATCH(request: Request) {
     return NextResponse.json(updated);
   } catch (error) {
     console.error('Error al actualizar Apply:', error);
-    return NextResponse.json({ error: 'Error interno al actualizar solicitud' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Error interno al actualizar solicitud' },
+      { status: 500 }
+    );
   }
 }
