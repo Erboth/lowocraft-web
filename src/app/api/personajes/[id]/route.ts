@@ -1,32 +1,34 @@
-// src/app/api/applications/[id]/route.ts
-import prisma from '@/lib/prisma';
+// src/app/api/personajes/[id]/route.ts
 import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const id = Number(params.id);
+export async function PUT(request: Request) {
+  // Extraemos el ID de la ruta a mano:
+  const { pathname } = new URL(request.url);
+  const parts = pathname.split('/');        // e.g. ['','api','personajes','123']
+  const idStr = parts[parts.length - 1];
+  const id = Number(idStr);
+
   if (isNaN(id)) {
-    return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'ID inválido' },
+      { status: 400 }
+    );
   }
 
-  const { status } = await request.json();
-  // Validamos que status sea uno de los valores permitidos
-  if (!['PENDING', 'APPROVED', 'REJECTED'].includes(status)) {
-    return NextResponse.json({ error: 'Estado inválido' }, { status: 400 });
-  }
+  // Leemos los campos a actualizar
+  const { especializacion, rol, etiqueta } = await request.json();
 
   try {
-    const actualizado = await prisma.apply.update({
+    const actualizado = await prisma.personaje.update({
       where: { id },
-      data: { status },
+      data: { especializacion, rol, etiqueta },
     });
     return NextResponse.json(actualizado);
   } catch (error) {
-    console.error('Error al actualizar solicitud:', error);
+    console.error('Error al actualizar personaje:', error);
     return NextResponse.json(
-      { error: 'Error al actualizar solicitud' },
+      { error: 'Error al actualizar personaje' },
       { status: 500 }
     );
   }
