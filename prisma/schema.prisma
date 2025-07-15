@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")  // 👉 solo la referencia a la variable
+  url      = env("DATABASE_URL")
 }
 
 model Personaje {
@@ -16,4 +16,38 @@ model Personaje {
   rol             String
   etiqueta        String?
   fechaRegistro   DateTime @default(now())
+}
+
+// 1. Usuarios de la web, con rol de ADMIN o USER
+model Usuario {
+  id        Int    @id @default(autoincrement())
+  email     String @unique
+  nombre    String
+  password  String           // si usas credenciales propias
+  rol       Rol      @default(USER)
+  createdAt DateTime @default(now())
+}
+
+// 2. Solicitudes de applys
+model Apply {
+  id              Int         @id @default(autoincrement())
+  nombrePJ        String
+  clase           String
+  especializacion String
+  uiImageUrl      String
+  logsLink        String
+  status          ApplyStatus @default(PENDING)
+  createdAt       DateTime    @default(now())
+}
+
+// Enumerados auxiliares
+enum Rol {
+  USER
+  ADMIN
+}
+
+enum ApplyStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
