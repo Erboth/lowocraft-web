@@ -17,16 +17,19 @@ type Apply = {
 export default function AdminApplysPage() {
   const [applies, setApplies] = useState<Apply[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modalUrl, setModalUrl] = useState('');
 
   const fetchPending = async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/applications?status=PENDING');
-      const data = await res.json();
-      setApplies(data);
+      if (res.ok) {
+        const data: Apply[] = await res.json();
+        setApplies(data);
+      } else {
+        console.error('Error al cargar solicitudes');
+      }
     } catch (err) {
-      console.error('Error al cargar solicitudes:', err);
+      console.error('Error de red al cargar solicitudes:', err);
     } finally {
       setLoading(false);
     }
@@ -38,18 +41,20 @@ export default function AdminApplysPage() {
 
   const updateStatus = async (id: number, status: 'APPROVED' | 'REJECTED') => {
     try {
-      await fetch(`/api/applications/${id}`, {
-        method: 'PUT',
+      const res = await fetch(`/api/applications/${id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
-      fetchPending();
+      if (res.ok) {
+        setApplies(curr => curr.filter(a => a.id !== id));
+      } else {
+        console.error('Error al actualizar solicitud');
+      }
     } catch (err) {
-      console.error('Error al actualizar estado:', err);
+      console.error('Error de red al actualizar solicitud:', err);
     }
   };
-
-  const closeModal = () => setModalUrl('');
 
   if (loading) return <p className="p-6">Cargando solicitudes…</p>;
   if (applies.length === 0) return <p className="p-6">No hay solicitudes pendientes.</p>;
@@ -66,8 +71,7 @@ export default function AdminApplysPage() {
             <img
               src={a.uiImageUrl}
               alt={`Interfaz de ${a.nombrePJ}`}
-              className="my-2 max-w-xs cursor-pointer border"
-              onClick={() => setModalUrl(a.uiImageUrl)}
+              className="my-2 max-w-xs rounded border"
             />
             <p>
               <a
@@ -95,22 +99,6 @@ export default function AdminApplysPage() {
             </div>
           </div>
         ))}
-
-        {modalUrl && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-            <div className="relative">
-              <button
-                onClick={closeModal}
-                className="absolute top-2 right-2 text-white text-2xl"
-              >×</button>
-              <img
-                src={modalUrl}
-                alt="Vista ampliada interfaz"
-                className="max-h-full max-w-full"
-              />
-            </div>
-          </div>
-        )}
       </div>
     </main>
   );
