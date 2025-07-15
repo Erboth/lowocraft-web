@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 // Definición de clases y especializaciones de WoW (Pandaria) en castellano
@@ -13,7 +13,7 @@ const CLASES = [
   'Paladín',
   'Sacerdote',
   'Pícaro',
-  'Chamá n',
+  'Chamán',
   'Brujo',
   'Guerrero',
 ];
@@ -37,31 +37,22 @@ export default function ApplysPage() {
   const [characterName, setCharacterName] = useState('');
   const [characterClass, setCharacterClass] = useState('');
   const [spec, setSpec] = useState('');
-  const [uiImage, setUiImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState('');
-  const [modalUrl, setModalUrl] = useState('');
+  const [uiImageUrl, setUiImageUrl] = useState('');
   const [discordUsername, setDiscordUsername] = useState('');
   const [logsLink, setLogsLink] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setUiImage(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-    }
-  };
-
-  const closeModal = () => {
-    URL.revokeObjectURL(modalUrl);
-    setModalUrl('');
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!characterName || !characterClass || !spec || !uiImage || !discordUsername || !logsLink) {
+    if (
+      !characterName ||
+      !characterClass ||
+      !spec ||
+      !uiImageUrl ||
+      !discordUsername ||
+      !logsLink
+    ) {
       setError('Todos los campos son obligatorios.');
       return;
     }
@@ -74,7 +65,7 @@ export default function ApplysPage() {
       formData.append('characterName', characterName);
       formData.append('characterClass', characterClass);
       formData.append('spec', spec);
-      formData.append('uiImage', uiImage);
+      formData.append('uiImageUrl', uiImageUrl);
       formData.append('discordUsername', discordUsername);
       formData.append('logsLink', logsLink);
 
@@ -82,16 +73,12 @@ export default function ApplysPage() {
         method: 'POST',
         body: formData,
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Error al enviar la solicitud.');
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al enviar la solicitud.');
 
       router.push('/applys/thank-you');
     } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : 'Ha ocurrido un error. Intenta de nuevo más tarde.');
+      setError(err instanceof Error ? err.message : 'Ha ocurrido un error.');
     } finally {
       setSubmitting(false);
     }
@@ -133,7 +120,9 @@ export default function ApplysPage() {
               required
             >
               <option value="">Selecciona una clase</option>
-              {CLASES.map(c => (<option key={c} value={c}>{c}</option>))}
+              {CLASES.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
 
@@ -151,42 +140,28 @@ export default function ApplysPage() {
               disabled={!characterClass}
             >
               <option value="">Selecciona una especialización</option>
-              {characterClass && ESPECIALIZACIONES[characterClass].map(s => (<option key={s} value={s}>{s}</option>))}
+              {characterClass &&
+                ESPECIALIZACIONES[characterClass].map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
             </select>
           </div>
 
-          {/* Subir interfaz */}
+          {/* URL de imagen de interfaz */}
           <div>
-            <label htmlFor="uiImage" className="block mb-1">
-              Subir imagen de tu interfaz
+            <label htmlFor="uiImageUrl" className="block mb-1">
+              URL de la imagen de tu interfaz
             </label>
             <input
-              id="uiImage"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full text-sm text-gray-400"
+              id="uiImageUrl"
+              type="url"
+              value={uiImageUrl}
+              onChange={e => setUiImageUrl(e.target.value)}
+              placeholder="https://i.imgur.com/ejemplo.png"
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
               required
             />
           </div>
-
-          {previewUrl && (
-            <img
-              src={previewUrl}
-              alt="Previsualización de interfaz"
-              className="mt-2 max-w-xs cursor-pointer border"
-              onClick={() => setModalUrl(previewUrl)}
-            />
-          )}
-
-          {modalUrl && (
-            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-              <div className="relative">
-                <button onClick={closeModal} className="absolute top-2 right-2 text-white text-2xl">×</button>
-                <img src={modalUrl} alt="Vista ampliada interfaz" className="max-h-full max-w-full" />
-              </div>
-            </div>
-          )}
 
           {/* Usuario de Discord */}
           <div>
@@ -223,7 +198,11 @@ export default function ApplysPage() {
           {error && <p className="text-red-500">{error}</p>}
 
           {/* Botón de envío */}
-          <button type="submit" disabled={submitting} className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50"
+          >
             {submitting ? 'Enviando...' : 'Enviar aplicación'}
           </button>
         </form>
