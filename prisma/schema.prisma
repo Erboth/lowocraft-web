@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -18,17 +17,15 @@ model Personaje {
   fechaRegistro   DateTime @default(now())
 }
 
-// 1. Usuarios de la web, con rol de ADMIN o USER
 model Usuario {
-  id        Int    @id @default(autoincrement())
-  email     String @unique
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
   nombre    String
-  password  String           // si usas credenciales propias
+  password  String
   rol       Rol      @default(USER)
   createdAt DateTime @default(now())
 }
 
-// 2. Solicitudes de applys
 model Apply {
   id              Int         @id @default(autoincrement())
   nombrePJ        String
@@ -40,7 +37,6 @@ model Apply {
   createdAt       DateTime    @default(now())
 }
 
-// Enumerados auxiliares
 enum Rol {
   USER
   ADMIN
