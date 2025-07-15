@@ -74,6 +74,58 @@ export default function AdminApplysPage() {
             <p><strong>Discord:</strong> {a.discordUsername}</p>
             <p><strong>Enviado:</strong> {new Date(a.createdAt).toLocaleString()}</p>
 
+            {/* Mostrar link de la interfaz */}
+            <p>
+              <strong>Interfaz:</strong>{' '}
+              <a
+                href={a.uiImageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline break-all"
+              >
+                {a.uiImageUrl}
+              </a>
+            </p>
+
+            <p>
+              <strong>Logs:</strong>{' '}
+              <a
+                href={a.logsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline break-all"
+              >
+                {a.logsLink}
+              </a>
+            </p>
+
+            <div className="mt-2 space-x-2">
+              <button
+                onClick={() => updateStatus(a.id, 'APPROVED')}
+                className="px-3 py-1 bg-green-600 rounded"
+              >
+                Aprobar
+              </button>
+              <button
+                onClick={() => updateStatus(a.id, 'REJECTED')}
+                className="px-3 py-1 bg-red-600 rounded"
+              >
+                Rechazar
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
+    <main className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-3xl mx-auto space-y-4">
+        <h1 className="text-3xl font-bold mb-4">Solicitudes Pendientes</h1>
+        {applies.map((a) => (
+          <div key={a.id} className="bg-gray-900 p-4 rounded">
+            <p><strong>{a.nombrePJ}</strong> - {a.clase} / {a.especializacion}</p>
+            <p><strong>Discord:</strong> {a.discordUsername}</p>
+            <p><strong>Enviado:</strong> {new Date(a.createdAt).toLocaleString()}</p>
+
             {/* Mostrar link de imagen en lugar de miniatura */}
             <p><strong>Interfaz:</strong></p>
             <p>
