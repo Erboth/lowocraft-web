@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 type Apply = {
   id: number;
@@ -17,7 +16,6 @@ type Apply = {
 export default function AdminApplysPage() {
   const [applies, setApplies] = useState<Apply[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     fetch('/api/applications?status=PENDING')
