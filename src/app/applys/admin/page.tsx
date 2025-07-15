@@ -75,17 +75,12 @@ export default function AdminApplysPage() {
             <p><strong>Enviado:</strong> {new Date(a.createdAt).toLocaleString()}</p>
 
             {/* Mostrar link de imagen en lugar de miniatura */}
-            <p>
-              <strong>Interfaz:</strong>{' '}
-              <a
-                href={a.uiImageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                {a.uiImageUrl}
-              </a>
-            </p>
+            <p><strong>Interfaz:</strong></p>
+            <img
+              src={a.uiImageUrl}
+              alt={`Interfaz de ${a.nombrePJ}`}
+              className="my-2 max-w-full border rounded"
+            />
 
             <p>
               <strong>Logs:</strong>{' '}
