@@ -16,6 +16,7 @@ const especializacionesPorClase: Record<string, string[]> = {
   brujo: ['Aflicción', 'Demonología', 'Destrucción'],
   chamán: ['Elemental', 'Mejora', 'Restauración'],
   monje: ['Maestro Cervecero', 'Tejedor de Niebla', 'Viajero del Viento'],
+  'caballero de la muerte' : ['Sangre', 'Escarcha', 'Profano']
 };
 
 /* --------------------- Lógica de rol --------------------- */
