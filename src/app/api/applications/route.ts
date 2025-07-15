@@ -1,6 +1,7 @@
 // src/app/api/applications/route.ts
-import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { NextResponse } from 'next/server';
+import { ApplyStatus } from '@prisma/client';
 
 // Crear una nueva solicitud (Apply)
 export async function POST(request: Request) {
@@ -16,9 +17,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 });
     }
 
-    // Aquí deberías subir uiImage a tu almacenamiento y obtener una URL
-    // Por ejemplo, usando Vercel Blob o Cloudinary
-    // Para esta demo, vamos a simular la URL:
+    // TODO: integrar subida real de uiImage y obtener URL
     const uiImageUrl = `/uploads/${uiImage.name}`;
 
     const nuevoApply = await prisma.apply.create({
@@ -43,7 +42,15 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const statusParam = url.searchParams.get('status');
-    const where = statusParam ? { status: statusParam.toUpperCase() } : {};
+    let where: { status?: ApplyStatus } | undefined;
+
+    if (statusParam) {
+      const status = statusParam.toUpperCase() as ApplyStatus;
+      if (!Object.values(ApplyStatus).includes(status)) {
+        return NextResponse.json({ error: 'Estado inválido' }, { status: 400 });
+      }
+      where = { status };
+    }
 
     const applies = await prisma.apply.findMany({
       where,
