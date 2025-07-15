@@ -11,9 +11,10 @@ export async function POST(request: Request) {
     const characterClass = formData.get('characterClass') as string;
     const spec = formData.get('spec') as string;
     const uiImage = formData.get('uiImage') as File;
+    const discordUsername = formData.get('discordUsername') as string;
     const logsLink = formData.get('logsLink') as string;
 
-    if (!characterName || !characterClass || !spec || !uiImage || !logsLink) {
+    if (!characterName || !characterClass || !spec || !uiImage || !discordUsername || !logsLink) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 });
     }
 
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
         clase: characterClass,
         especializacion: spec,
         uiImageUrl,
+        discordUsername,
         logsLink,
       },
     });
@@ -33,7 +35,8 @@ export async function POST(request: Request) {
     return NextResponse.json(nuevoApply, { status: 201 });
   } catch (error) {
     console.error('Error al crear solicitud:', error);
-    return NextResponse.json({ error: 'Error interno al crear solicitud' }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: `Error interno al crear solicitud: ${message}` }, { status: 500 });
   }
 }
 
@@ -59,6 +62,7 @@ export async function GET(request: Request) {
     return NextResponse.json(applies);
   } catch (error) {
     console.error('Error al listar solicitudes:', error);
-    return NextResponse.json({ error: 'Error interno al listar solicitudes' }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: `Error interno al listar solicitudes: ${message}` }, { status: 500 });
   }
 }

@@ -38,6 +38,7 @@ export default function ApplysPage() {
   const [characterClass, setCharacterClass] = useState('');
   const [spec, setSpec] = useState('');
   const [uiImage, setUiImage] = useState<File | null>(null);
+  const [discordUsername, setDiscordUsername] = useState('');
   const [logsLink, setLogsLink] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -50,7 +51,7 @@ export default function ApplysPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!characterName || !characterClass || !spec || !uiImage || !logsLink) {
+    if (!characterName || !characterClass || !spec || !uiImage || !discordUsername || !logsLink) {
       setError('Todos los campos son obligatorios.');
       return;
     }
@@ -64,6 +65,7 @@ export default function ApplysPage() {
       formData.append('characterClass', characterClass);
       formData.append('spec', spec);
       formData.append('uiImage', uiImage);
+      formData.append('discordUsername', discordUsername);
       formData.append('logsLink', logsLink);
 
       const res = await fetch('/api/applications', {
@@ -72,13 +74,14 @@ export default function ApplysPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Error al enviar la solicitud.');
+        const data = await res.json();
+        throw new Error(data.error || 'Error al enviar la solicitud.');
       }
 
       router.push('/applys/thank-you');
     } catch (err) {
       console.error(err);
-      setError('Ha ocurrido un error. Intenta de nuevo más tarde.');
+      setError(err instanceof Error ? err.message : 'Ha ocurrido un error. Intenta de nuevo más tarde.');
     } finally {
       setSubmitting(false);
     }
@@ -165,6 +168,22 @@ export default function ApplysPage() {
               accept="image/*"
               onChange={handleImageChange}
               className="w-full text-sm text-gray-400"
+              required
+            />
+          </div>
+
+          {/* Usuario de Discord */}
+          <div>
+            <label className="block mb-1" htmlFor="discordUsername">
+              Usuario de Discord <span className="text-sm text-gray-400">(nombre#0000)</span>
+            </label>
+            <input
+              type="text"
+              id="discordUsername"
+              value={discordUsername}
+              onChange={e => setDiscordUsername(e.target.value)}
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+              placeholder="Kolkuth#1234"
               required
             />
           </div>

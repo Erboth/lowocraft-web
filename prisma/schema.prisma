@@ -32,10 +32,13 @@ model Apply {
   clase           String
   especializacion String
   uiImageUrl      String
+  discordUsername String @default ("")     // nuevo campo para Discord
   logsLink        String
   status          ApplyStatus @default(PENDING)
   createdAt       DateTime    @default(now())
 }
+
+
 
 enum Rol {
   USER

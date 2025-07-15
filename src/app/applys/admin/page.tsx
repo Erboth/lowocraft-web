@@ -8,6 +8,7 @@ type Apply = {
   clase: string;
   especializacion: string;
   uiImageUrl: string;
+  discordUsername: string;
   logsLink: string;
   status: string;
   createdAt: string;
@@ -28,7 +29,7 @@ export default function AdminApplysPage() {
     await fetch(`/api/applications/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ status }),
     });
     setApplies(curr => curr.filter(a => a.id !== id));
   };
@@ -43,17 +44,36 @@ export default function AdminApplysPage() {
         {applies.map(a => (
           <div key={a.id} className="bg-gray-900 p-4 rounded">
             <p><strong>{a.nombrePJ}</strong> - {a.clase} / {a.especializacion}</p>
-            <img src={a.uiImageUrl} alt="Interfaz" className="my-2 max-w-xs" />
-            <p><a href={a.logsLink} target="_blank" className="underline">Ver Warcraft Logs</a></p>
+            <p><strong>Discord:</strong> {a.discordUsername}</p>
+            <p><strong>Enviado:</strong> {new Date(a.createdAt).toLocaleString()}</p>
+            <img
+              src={a.uiImageUrl}
+              alt={`Interfaz de ${a.nombrePJ}`}
+              className="my-2 max-w-xs border"
+            />
+            <p>
+              <a
+                href={a.logsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Ver Warcraft Logs
+              </a>
+            </p>
             <div className="mt-2 space-x-2">
               <button
                 onClick={() => updateStatus(a.id, 'APPROVED')}
                 className="px-3 py-1 bg-green-600 rounded"
-              >Aprobar</button>
+              >
+                Aprobar
+              </button>
               <button
                 onClick={() => updateStatus(a.id, 'REJECTED')}
                 className="px-3 py-1 bg-red-600 rounded"
-              >Rechazar</button>
+              >
+                Rechazar
+              </button>
             </div>
           </div>
         ))}
