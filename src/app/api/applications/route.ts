@@ -1,6 +1,7 @@
 // src/app/api/applications/route.ts
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { ApplyStatus } from '@prisma/client';
 
 // Crear una nueva solicitud (Apply)
 export async function POST(request: Request) {
@@ -27,7 +28,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Crear registro directamente con la URL proporcionada
     const nuevoApply = await prisma.apply.create({
       data: {
         nombrePJ:        characterName,
@@ -55,9 +55,18 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const statusParam = url.searchParams.get('status');
-    const where = statusParam
-      ? { status: statusParam.toUpperCase() }
-      : undefined;
+    let where;
+
+    if (statusParam) {
+      const status = statusParam.toUpperCase() as ApplyStatus;
+      if (!Object.values(ApplyStatus).includes(status)) {
+        return NextResponse.json(
+          { error: `Estado inválido: ${statusParam}` },
+          { status: 400 }
+        );
+      }
+      where = { status };
+    }
 
     const applies = await prisma.apply.findMany({
       where,
