@@ -13,7 +13,7 @@ const CLASES = [
   'Paladín',
   'Sacerdote',
   'Pícaro',
-  'Chamán',
+  'Chamá n',
   'Brujo',
   'Guerrero',
 ];
@@ -38,6 +38,8 @@ export default function ApplysPage() {
   const [characterClass, setCharacterClass] = useState('');
   const [spec, setSpec] = useState('');
   const [uiImage, setUiImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [modalUrl, setModalUrl] = useState('');
   const [discordUsername, setDiscordUsername] = useState('');
   const [logsLink, setLogsLink] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -45,8 +47,16 @@ export default function ApplysPage() {
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setUiImage(e.target.files[0]);
+      const file = e.target.files[0];
+      setUiImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     }
+  };
+
+  const closeModal = () => {
+    URL.revokeObjectURL(modalUrl);
+    setModalUrl('');
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -97,12 +107,12 @@ export default function ApplysPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Nombre de personaje */}
           <div>
-            <label className="block mb-1" htmlFor="characterName">
+            <label htmlFor="characterName" className="block mb-1">
               Nombre de personaje en WoW
             </label>
             <input
-              type="text"
               id="characterName"
+              type="text"
               value={characterName}
               onChange={e => setCharacterName(e.target.value)}
               className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
@@ -112,31 +122,24 @@ export default function ApplysPage() {
 
           {/* Selector de clase */}
           <div>
-            <label className="block mb-1" htmlFor="characterClass">
+            <label htmlFor="characterClass" className="block mb-1">
               Clase
             </label>
             <select
               id="characterClass"
               value={characterClass}
-              onChange={e => {
-                setCharacterClass(e.target.value);
-                setSpec('');
-              }}
+              onChange={e => { setCharacterClass(e.target.value); setSpec(''); }}
               className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
               required
             >
               <option value="">Selecciona una clase</option>
-              {CLASES.map(c => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
+              {CLASES.map(c => (<option key={c} value={c}>{c}</option>))}
             </select>
           </div>
 
           {/* Selector de especialización */}
           <div>
-            <label className="block mb-1" htmlFor="spec">
+            <label htmlFor="spec" className="block mb-1">
               Especialización
             </label>
             <select
@@ -148,23 +151,18 @@ export default function ApplysPage() {
               disabled={!characterClass}
             >
               <option value="">Selecciona una especialización</option>
-              {characterClass &&
-                ESPECIALIZACIONES[characterClass].map(s => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
+              {characterClass && ESPECIALIZACIONES[characterClass].map(s => (<option key={s} value={s}>{s}</option>))}
             </select>
           </div>
 
           {/* Subir interfaz */}
           <div>
-            <label className="block mb-1" htmlFor="uiImage">
+            <label htmlFor="uiImage" className="block mb-1">
               Subir imagen de tu interfaz
             </label>
             <input
-              type="file"
               id="uiImage"
+              type="file"
               accept="image/*"
               onChange={handleImageChange}
               className="w-full text-sm text-gray-400"
@@ -172,30 +170,48 @@ export default function ApplysPage() {
             />
           </div>
 
+          {previewUrl && (
+            <img
+              src={previewUrl}
+              alt="Previsualización de interfaz"
+              className="mt-2 max-w-xs cursor-pointer border"
+              onClick={() => setModalUrl(previewUrl)}
+            />
+          )}
+
+          {modalUrl && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+              <div className="relative">
+                <button onClick={closeModal} className="absolute top-2 right-2 text-white text-2xl">×</button>
+                <img src={modalUrl} alt="Vista ampliada interfaz" className="max-h-full max-w-full" />
+              </div>
+            </div>
+          )}
+
           {/* Usuario de Discord */}
           <div>
-            <label className="block mb-1" htmlFor="discordUsername">
+            <label htmlFor="discordUsername" className="block mb-1">
               Usuario de Discord <span className="text-sm text-gray-400">(nombre#0000)</span>
             </label>
             <input
-              type="text"
               id="discordUsername"
+              type="text"
               value={discordUsername}
               onChange={e => setDiscordUsername(e.target.value)}
-              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
               placeholder="Kolkuth#1234"
+              className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
               required
             />
           </div>
 
           {/* Enlace a Warcraft Logs */}
           <div>
-            <label className="block mb-1" htmlFor="logsLink">
+            <label htmlFor="logsLink" className="block mb-1">
               Enlace a Warcraft Logs
             </label>
             <input
-              type="url"
               id="logsLink"
+              type="url"
               value={logsLink}
               onChange={e => setLogsLink(e.target.value)}
               className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
@@ -207,11 +223,7 @@ export default function ApplysPage() {
           {error && <p className="text-red-500">{error}</p>}
 
           {/* Botón de envío */}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
+          <button type="submit" disabled={submitting} className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50">
             {submitting ? 'Enviando...' : 'Enviar aplicación'}
           </button>
         </form>
